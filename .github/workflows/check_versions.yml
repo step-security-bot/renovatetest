@@ -56,19 +56,3 @@ jobs:
           echo "version hash in current latest image = ${{ needs.version_in_container.outputs.currverhash }}"
           echo "version hash in image just built = ${{ needs.latest_version.outputs.latestverhash }}"
           echo "will a deployment be triggered = ${{ needs.version_in_container.outputs.currverhash != needs.latest_version.outputs.latestverhash }}"
-
-  trigger_deploy:
-    name: Trigger deployment of image
-    needs: [version_in_container, latest_version]
-    if: ${{ needs.version_in_container.outputs.currverhash != needs.latest_version.outputs.latestverhash }}
-    runs-on: ubuntu-latest
-    env:
-      WORKFLOW_AUTH_TOKEN: ${{ secrets.GH_PAT_KX1T }}
-      WORKFLOW_REPO: sdr-enthusiasts/docker-tar1090
-      WORKFLOW_FILE: deploy.yml
-      WORKFLOW_REASON: "triggered via check_versions.yaml. New tar1090 found"
-    steps:
-      - name: Trigger ${{ env.WORKFLOW_FILE }} in ${{ env.WORKFLOW_REPO }}
-        run: |
-          echo "$WORKFLOW_AUTH_TOKEN" | gh auth login --with-token
-          gh workflow run --ref main --repo "$WORKFLOW_REPO" "$WORKFLOW_FILE" -f reason="$WORKFLOW_REASON"
