@@ -7,12 +7,22 @@ on:
       - "Tests"
     types: ["requested"]
 
+permissions:
+  contents: read
+
 jobs:
   cancel-duplicate-workflow-runs:
+    permissions:
+      actions: write  # for potiuk/cancel-workflow-runs to cancel duplicates and failed workflows
     name: "Cancel duplicate workflow runs"
     runs-on: ubuntu-latest
     steps:
-      - uses: potiuk/cancel-workflow-runs@master
+      - name: Harden Runner
+        uses: step-security/harden-runner@63c24ba6bd7ba022e95695ff85de572c04a18142 # v2.7.0
+        with:
+          egress-policy: audit
+
+      - uses: potiuk/cancel-workflow-runs@4723494a065d162f8e9efd071b98e0126e00f866 # master
         name: "Cancel duplicate workflow runs"
         with:
           cancelMode: allDuplicates
